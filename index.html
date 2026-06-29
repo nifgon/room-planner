@@ -19,29 +19,31 @@ canvas { display: block; border-radius: 10px; }
 .trash-zone.active { background: rgba(226,75,74,0.3); }
 
 /* RIGHT — sidebar */
-.sidebar { width: 210px; flex-shrink: 0; background: #fff; border-left: 0.5px solid #dde3ea; display: flex; flex-direction: column; overflow: hidden; }
-.sidebar-inner { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-.sidebar-inner::-webkit-scrollbar { width: 4px; }
-.sidebar-inner::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 2px; }
+.sidebar { width: 220px; flex-shrink: 0; background: #fff; border-left: 0.5px solid #dde3ea; display: flex; flex-direction: column; overflow: hidden; }
 
-.section-label { font-size: 10px; font-weight: 500; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
-.flist { display: flex; flex-direction: column; gap: 4px; }
-.fbtn { display: flex; align-items: center; gap: 7px; padding: 6px 8px; border-radius: 6px; border: 0.5px solid #e2e8f0; background: #f8fafc; cursor: pointer; font-size: 12px; color: #2d3748; text-align: left; }
-.fbtn:hover { background: #edf2f7; border-color: #cbd5e0; }
-.swatch { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
-
-.ppanel { border: 0.5px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 10px; }
+/* Property panel — fixed at top, never scrolls away */
+.ppanel { flex-shrink: 0; border-bottom: 0.5px solid #e2e8f0; padding: 10px; background: #f8fafc; }
 .ppanel.hidden { display: none; }
 .ptitle { font-size: 12px; font-weight: 500; color: #2d3748; margin-bottom: 8px; }
-.prow { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-.prow label { font-size: 11px; color: #718096; width: 52px; flex-shrink: 0; }
-.prow input[type=range] { flex: 1; height: 16px; }
-.pval { font-size: 11px; font-weight: 500; color: #2d3748; width: 38px; text-align: right; flex-shrink: 0; }
+.prow { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; min-width: 0; }
+.prow label { font-size: 11px; color: #718096; width: 50px; flex-shrink: 0; }
+.prow input[type=range] { flex: 1; min-width: 0; height: 20px; }
+.pval { font-size: 11px; font-weight: 500; color: #2d3748; width: 40px; text-align: right; flex-shrink: 0; }
 .rotbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 6px; }
-.rbtn { padding: 4px 0; border-radius: 5px; border: 0.5px solid #e2e8f0; background: #fff; cursor: pointer; font-size: 11px; color: #2d3748; }
+.rbtn { padding: 5px 0; border-radius: 5px; border: 0.5px solid #e2e8f0; background: #fff; cursor: pointer; font-size: 11px; color: #2d3748; }
 .rbtn:hover { background: #edf2f7; }
 .dbtn { width: 100%; padding: 6px; border-radius: 6px; border: 0.5px solid #fc8181; background: #fff5f5; cursor: pointer; font-size: 11px; color: #c53030; margin-top: 2px; }
-.clrbtn { width: 100%; padding: 6px; border-radius: 6px; border: 0.5px solid #e2e8f0; background: #fff; cursor: pointer; font-size: 11px; color: #c53030; }
+
+/* Furniture list — scrollable below */
+.flist-wrap { flex: 1; overflow-y: auto; padding: 10px; }
+.flist-wrap::-webkit-scrollbar { width: 4px; }
+.flist-wrap::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 2px; }
+.section-label { font-size: 10px; font-weight: 500; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.flist { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.fbtn { display: flex; align-items: center; gap: 7px; padding: 6px 8px; border-radius: 6px; border: 0.5px solid #e2e8f0; background: #f8fafc; cursor: pointer; font-size: 12px; color: #2d3748; text-align: left; width: 100%; }
+.fbtn:hover { background: #edf2f7; border-color: #cbd5e0; }
+.swatch { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
+.clrbtn { width: 100%; padding: 6px; border-radius: 6px; border: 0.5px solid #e2e8f0; background: #fff; cursor: pointer; font-size: 11px; color: #c53030; margin-top: 4px; }
 .divider { height: 0.5px; background: #e2e8f0; margin: 2px 0; }
 
 .info { padding: 6px 14px; font-size: 10px; color: #a0aec0; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border-top: 0.5px solid #e2e8f0; background: #fff; flex-shrink: 0; }
@@ -59,27 +61,27 @@ canvas { display: block; border-radius: 10px; }
   </div>
 
   <div class="sidebar">
-    <div class="sidebar-inner">
-      <div>
-        <div class="section-label">Мебель</div>
-        <div class="flist" id="fbtns"></div>
-      </div>
-      <div class="divider"></div>
-      <button class="clrbtn" onclick="clearAll()">Очистить всё</button>
-      <div class="divider"></div>
-      <div class="ppanel hidden" id="panel">
+    <!-- Property panel pinned at top -->
+    <div class="ppanel hidden" id="panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div class="ptitle" id="ptitle">Предмет</div>
-        <div class="prow"><label>Ширина</label><input type="range" id="sl-w" min="20" max="300" step="1" oninput="resizeW(this.value)"><span class="pval" id="out-w">—</span></div>
-        <div class="prow"><label>Глубина</label><input type="range" id="sl-h" min="20" max="300" step="1" oninput="resizeH(this.value)"><span class="pval" id="out-h">—</span></div>
-        <div class="prow"><label>Поворот</label><input type="range" id="sl-r" min="0" max="359" step="1" oninput="rotateDeg(this.value)"><span class="pval" id="out-r">0°</span></div>
-        <div class="rotbtns">
-          <button class="rbtn" onclick="rotateSnap(0)">⬆ 0°</button>
-          <button class="rbtn" onclick="rotateSnap(90)">↪ 90°</button>
-          <button class="rbtn" onclick="rotateSnap(180)">⬇ 180°</button>
-          <button class="rbtn" onclick="rotateSnap(270)">↩ 270°</button>
-        </div>
-        <button class="dbtn" onclick="deleteSelected()">Удалить</button>
+        <button class="dbtn" style="width:auto;padding:4px 8px;margin:0;" onclick="deleteSelected()">✕</button>
       </div>
+      <div class="prow"><label>Ширина</label><input type="range" id="sl-w" min="20" max="300" step="1" oninput="resizeW(this.value)"><span class="pval" id="out-w">—</span></div>
+      <div class="prow"><label>Глубина</label><input type="range" id="sl-h" min="20" max="300" step="1" oninput="resizeH(this.value)"><span class="pval" id="out-h">—</span></div>
+      <div class="prow"><label>Поворот</label><input type="range" id="sl-r" min="0" max="359" step="1" oninput="rotateDeg(this.value)"><span class="pval" id="out-r">0°</span></div>
+      <div class="rotbtns">
+        <button class="rbtn" onclick="rotateSnap(0)">⬆ 0°</button>
+        <button class="rbtn" onclick="rotateSnap(90)">↪ 90°</button>
+        <button class="rbtn" onclick="rotateSnap(180)">⬇ 180°</button>
+        <button class="rbtn" onclick="rotateSnap(270)">↩ 270°</button>
+      </div>
+    </div>
+    <!-- Furniture list scrollable below -->
+    <div class="flist-wrap">
+      <div class="section-label">Добавить мебель</div>
+      <div class="flist" id="fbtns"></div>
+      <button class="clrbtn" onclick="clearAll()">Очистить всё</button>
     </div>
   </div>
 </div>
