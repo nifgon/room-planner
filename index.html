@@ -43,7 +43,12 @@ canvas { display: block; border-radius: 10px; }
 .fbtn { display: flex; align-items: center; gap: 7px; padding: 6px 8px; border-radius: 6px; border: 0.5px solid #e2e8f0; background: #f8fafc; cursor: pointer; font-size: 12px; color: #2d3748; text-align: left; width: 100%; }
 .fbtn:hover { background: #edf2f7; border-color: #cbd5e0; }
 .swatch { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
-.clrbtn { width: 100%; padding: 6px; border-radius: 6px; border: 0.5px solid #e2e8f0; background: #fff; cursor: pointer; font-size: 11px; color: #c53030; margin-top: 4px; }
+.savebtn { flex:1; padding: 6px; border-radius: 6px; border: 0.5px solid #90cdf4; background: #ebf8ff; cursor: pointer; font-size: 11px; color: #2b6cb0; }
+.savebtn:hover { background: #bee3f8; }
+.newbtn { flex:1; padding: 6px; border-radius: 6px; border: 0.5px solid #e2e8f0; background: #fff; cursor: pointer; font-size: 11px; color: #4a5568; }
+.newbtn:hover { background: #edf2f7; }
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#2d3748; color:#fff; padding:8px 18px; border-radius:8px; font-size:13px; opacity:0; transition:opacity 0.3s; pointer-events:none; z-index:100; }
+.toast.show { opacity:1; }
 .divider { height: 0.5px; background: #e2e8f0; margin: 2px 0; }
 
 .info { padding: 6px 14px; font-size: 10px; color: #a0aec0; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border-top: 0.5px solid #e2e8f0; background: #fff; flex-shrink: 0; }
@@ -76,11 +81,15 @@ canvas { display: block; border-radius: 10px; }
     <div class="flist-wrap">
       <div class="section-label">Добавить мебель</div>
       <div class="flist" id="fbtns"></div>
-      <button class="clrbtn" onclick="clearAll()">Очистить всё</button>
+      <div style="display:flex;gap:4px;margin-top:4px;">
+        <button class="savebtn" onclick="saveLayout()">💾 Сохранить</button>
+        <button class="newbtn" onclick="newLayout()">＋ Новый</button>
+      </div>
     </div>
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
 <div class="info">
   <div class="leg"><div style="width:10px;height:10px;background:#5a7aaa;border-radius:2px;"></div>Взрослая (2.96×4.32 м)</div>
   <div class="leg"><div style="width:10px;height:10px;background:#5a9a5a;border-radius:2px;"></div>Детская (3.55×4.31 м)</div>
@@ -295,6 +304,31 @@ function addF(f){
   items.push(it);selectItem(idc);
 }
 function clearAll(){items=[];selectItem(null);}
+
+function saveLayout(){
+  localStorage.setItem('roomPlanner',JSON.stringify({items,idc}));
+  showToast('Сохранено ✓');
+}
+
+function loadLayout(){
+  try{
+    const d=JSON.parse(localStorage.getItem('roomPlanner'));
+    if(d&&d.items){items=d.items;idc=d.idc||0;draw();}
+  }catch(e){}
+}
+
+function newLayout(){
+  if(items.length===0||confirm('Создать новый план? Несохранённые изменения будут потеряны.'))
+    {items=[];idc=0;selectItem(null);showToast('Новый план');}
+}
+
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2000);
+}
 function selectItem(id){
   selectedId=id;const it=items.find(i=>i.id===id);
   if(it){
@@ -366,6 +400,7 @@ window.addEventListener('keydown',e=>{
 
 function init(){
   computeScale();
+  loadLayout();
   draw();
 }
 
