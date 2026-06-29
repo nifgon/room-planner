@@ -6,75 +6,115 @@
 <title>Планировщик комнат</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-body { font-family: system-ui, sans-serif; background: #f0f4f8; min-height: 100vh; padding: 16px; }
-h1 { font-size: 18px; font-weight: 500; color: #2d3748; margin-bottom: 12px; }
-.toolbar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; align-items: center; }
-.tlabel { font-size: 12px; color: #718096; }
-.fbtn { display: flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 6px; border: 0.5px solid #cbd5e0; background: #fff; cursor: pointer; font-size: 12px; color: #2d3748; }
-.fbtn:hover { background: #f7fafc; }
-.swatch { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
-.cwrap { position: relative; border: 0.5px solid #cbd5e0; border-radius: 12px; background: #b8c8d4; overflow: hidden; display: inline-block; }
-canvas { display: block; }
-.trash-zone { position: absolute; bottom: 10px; right: 10px; width: 38px; height: 38px; border-radius: 8px; background: rgba(226,75,74,0.12); border: 1.5px dashed #e24b4a; display: flex; align-items: center; justify-content: center; font-size: 18px; pointer-events: none; transition: background 0.15s; }
+body { font-family: system-ui, sans-serif; background: #eef2f6; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+h1 { font-size: 15px; font-weight: 500; color: #2d3748; padding: 10px 14px 0; flex-shrink: 0; }
+
+.layout { display: flex; flex: 1; gap: 0; overflow: hidden; }
+
+/* LEFT — canvas */
+.left { flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; overflow: hidden; min-width: 0; }
+.cwrap { position: relative; border: 0.5px solid #c0cdd8; border-radius: 10px; background: #b8c8d4; flex-shrink: 0; }
+canvas { display: block; border-radius: 10px; }
+.trash-zone { position: absolute; bottom: 8px; right: 8px; width: 34px; height: 34px; border-radius: 7px; background: rgba(226,75,74,0.12); border: 1.5px dashed #e24b4a; display: flex; align-items: center; justify-content: center; font-size: 16px; pointer-events: none; transition: background 0.15s; }
 .trash-zone.active { background: rgba(226,75,74,0.3); }
-.ppanel { margin-top: 10px; padding: 12px 14px; border: 0.5px solid #e2e8f0; border-radius: 12px; background: #fff; max-width: 700px; }
+
+/* RIGHT — sidebar */
+.sidebar { width: 210px; flex-shrink: 0; background: #fff; border-left: 0.5px solid #dde3ea; display: flex; flex-direction: column; overflow: hidden; }
+.sidebar-inner { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.sidebar-inner::-webkit-scrollbar { width: 4px; }
+.sidebar-inner::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 2px; }
+
+.section-label { font-size: 10px; font-weight: 500; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+.flist { display: flex; flex-direction: column; gap: 4px; }
+.fbtn { display: flex; align-items: center; gap: 7px; padding: 6px 8px; border-radius: 6px; border: 0.5px solid #e2e8f0; background: #f8fafc; cursor: pointer; font-size: 12px; color: #2d3748; text-align: left; }
+.fbtn:hover { background: #edf2f7; border-color: #cbd5e0; }
+.swatch { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
+
+.ppanel { border: 0.5px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 10px; }
 .ppanel.hidden { display: none; }
-.ptitle { font-size: 13px; font-weight: 500; color: #2d3748; }
-.prow { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
-.prow label { font-size: 12px; color: #718096; width: 76px; flex-shrink: 0; }
-.prow input[type=range] { flex: 1; }
-.pval { font-size: 12px; font-weight: 500; color: #2d3748; width: 46px; text-align: right; }
-.rotbtns { display: flex; gap: 5px; flex: 1; }
-.rbtn { flex: 1; padding: 5px 0; border-radius: 6px; border: 0.5px solid #cbd5e0; background: #f7fafc; cursor: pointer; font-size: 12px; color: #2d3748; }
+.ptitle { font-size: 12px; font-weight: 500; color: #2d3748; margin-bottom: 8px; }
+.prow { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.prow label { font-size: 11px; color: #718096; width: 52px; flex-shrink: 0; }
+.prow input[type=range] { flex: 1; height: 16px; }
+.pval { font-size: 11px; font-weight: 500; color: #2d3748; width: 38px; text-align: right; flex-shrink: 0; }
+.rotbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 6px; }
+.rbtn { padding: 4px 0; border-radius: 5px; border: 0.5px solid #e2e8f0; background: #fff; cursor: pointer; font-size: 11px; color: #2d3748; }
 .rbtn:hover { background: #edf2f7; }
-.dbtn { padding: 5px 12px; border-radius: 6px; border: 0.5px solid #fc8181; background: #fff5f5; cursor: pointer; font-size: 12px; color: #c53030; }
-.clrbtn { margin-left: auto; padding: 5px 10px; border-radius: 6px; border: 0.5px solid #cbd5e0; background: #fff; cursor: pointer; font-size: 12px; color: #c53030; }
-.info { margin-top: 8px; font-size: 11px; color: #a0aec0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-.leg { display: flex; align-items: center; gap: 4px; }
+.dbtn { width: 100%; padding: 6px; border-radius: 6px; border: 0.5px solid #fc8181; background: #fff5f5; cursor: pointer; font-size: 11px; color: #c53030; margin-top: 2px; }
+.clrbtn { width: 100%; padding: 6px; border-radius: 6px; border: 0.5px solid #e2e8f0; background: #fff; cursor: pointer; font-size: 11px; color: #c53030; }
+.divider { height: 0.5px; background: #e2e8f0; margin: 2px 0; }
+
+.info { padding: 6px 14px; font-size: 10px; color: #a0aec0; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border-top: 0.5px solid #e2e8f0; background: #fff; flex-shrink: 0; }
+.leg { display: flex; align-items: center; gap: 3px; }
 </style>
 </head>
 <body>
-<h1>Планировщик расстановки мебели</h1>
-<div class="toolbar">
-  <span class="tlabel">Добавить:</span>
-  <div id="fbtns" style="display:flex;flex-wrap:wrap;gap:5px;flex:1;"></div>
-  <button class="clrbtn" onclick="clearAll()">Очистить</button>
-</div>
-<div class="cwrap" id="wrap">
-  <canvas id="c"></canvas>
-  <div class="trash-zone" id="trash">🗑</div>
-</div>
-<div class="ppanel hidden" id="panel">
-  <div style="display:flex;align-items:center;justify-content:space-between;">
-    <div class="ptitle" id="ptitle">Предмет</div>
-    <button class="dbtn" onclick="deleteSelected()">Удалить</button>
+
+<div class="layout">
+  <div class="left">
+    <div class="cwrap" id="wrap">
+      <canvas id="c"></canvas>
+      <div class="trash-zone" id="trash">🗑</div>
+    </div>
   </div>
-  <div class="prow"><label>Ширина</label><input type="range" id="sl-w" min="20" max="300" step="1" oninput="resizeW(this.value)"><span class="pval" id="out-w">—</span></div>
-  <div class="prow"><label>Глубина</label><input type="range" id="sl-h" min="20" max="300" step="1" oninput="resizeH(this.value)"><span class="pval" id="out-h">—</span></div>
-  <div class="prow"><label>Поворот</label><input type="range" id="sl-r" min="0" max="359" step="1" oninput="rotateDeg(this.value)"><span class="pval" id="out-r">0°</span></div>
-  <div class="prow"><label>Быстро</label><div class="rotbtns"><button class="rbtn" onclick="rotateSnap(0)">⬆ 0°</button><button class="rbtn" onclick="rotateSnap(90)">↪ 90°</button><button class="rbtn" onclick="rotateSnap(180)">⬇ 180°</button><button class="rbtn" onclick="rotateSnap(270)">↩ 270°</button></div></div>
+
+  <div class="sidebar">
+    <div class="sidebar-inner">
+      <div>
+        <div class="section-label">Мебель</div>
+        <div class="flist" id="fbtns"></div>
+      </div>
+      <div class="divider"></div>
+      <button class="clrbtn" onclick="clearAll()">Очистить всё</button>
+      <div class="divider"></div>
+      <div class="ppanel hidden" id="panel">
+        <div class="ptitle" id="ptitle">Предмет</div>
+        <div class="prow"><label>Ширина</label><input type="range" id="sl-w" min="20" max="300" step="1" oninput="resizeW(this.value)"><span class="pval" id="out-w">—</span></div>
+        <div class="prow"><label>Глубина</label><input type="range" id="sl-h" min="20" max="300" step="1" oninput="resizeH(this.value)"><span class="pval" id="out-h">—</span></div>
+        <div class="prow"><label>Поворот</label><input type="range" id="sl-r" min="0" max="359" step="1" oninput="rotateDeg(this.value)"><span class="pval" id="out-r">0°</span></div>
+        <div class="rotbtns">
+          <button class="rbtn" onclick="rotateSnap(0)">⬆ 0°</button>
+          <button class="rbtn" onclick="rotateSnap(90)">↪ 90°</button>
+          <button class="rbtn" onclick="rotateSnap(180)">⬇ 180°</button>
+          <button class="rbtn" onclick="rotateSnap(270)">↩ 270°</button>
+        </div>
+        <button class="dbtn" onclick="deleteSelected()">Удалить</button>
+      </div>
+    </div>
+  </div>
 </div>
+
 <div class="info">
-  <div class="leg"><div style="width:11px;height:11px;background:#5a7aaa;border-radius:2px;"></div>Взрослая спальня (2.96×4.32 м)</div>
-  <div class="leg"><div style="width:11px;height:11px;background:#5a9a5a;border-radius:2px;"></div>Детская спальня (3.55×4.31 м)</div>
+  <div class="leg"><div style="width:10px;height:10px;background:#5a7aaa;border-radius:2px;"></div>Взрослая (2.96×4.32 м)</div>
+  <div class="leg"><div style="width:10px;height:10px;background:#5a9a5a;border-radius:2px;"></div>Детская (3.55×4.31 м)</div>
   <span>Клик — выбрать · перетащить · R — повернуть · двойной клик — удалить</span>
 </div>
 
 <script>
-const S=70, W=4, PAD=10;
 const RA={label:'Взрослая',w:2.96,h:4.32,ox:0,oy:0,color:'#d4e4f4',wall:'#5a7aaa'};
 const RB={label:'Детская',ox:2.96,oy:0,fw:3.55,fh:4.31,cutW:2.01,cutH:1.07,color:'#d0ecd0',wall:'#5a9a5a'};
 const totalW=RA.w+RB.fw, totalH=Math.max(RA.h,RB.fh);
-const CW=Math.round(totalW*S+PAD*2), CH=Math.round(totalH*S+PAD*2);
+const PAD=10, W=4;
 
+let S=90, CW, CH;
 const wrap=document.getElementById('wrap');
 const canvas=document.getElementById('c');
 const trash=document.getElementById('trash');
 const panel=document.getElementById('panel');
-canvas.width=CW; canvas.height=CH;
-wrap.style.width=CW+'px';
 const ctx=canvas.getContext('2d');
 let items=[],drag=null,selectedId=null,idc=0;
+
+function computeScale(){
+  const left=document.querySelector('.left');
+  const availW=left.clientWidth - PAD*2 - 4;
+  const availH=left.clientHeight - PAD*2 - 4;
+  const sx=availW/totalW, sy=availH/totalH;
+  S=Math.floor(Math.min(sx,sy));
+  S=Math.max(S,50);
+  CW=Math.round(totalW*S+PAD*2);
+  CH=Math.round(totalH*S+PAD*2);
+  canvas.width=CW; canvas.height=CH;
+}
 
 function px(m){return PAD+m*S;}
 function pm(p){return (p-PAD)/S;}
@@ -99,12 +139,12 @@ function drawDistances(it){
   const icy=aabb.top+(aabb.bottom-aabb.top)/2;
   let wallL,wallR,wallT,wallB;
   if(room==='A'){
-    wallL=px(RA.ox); wallR=px(RA.ox+RA.w); wallT=px(RA.oy); wallB=px(RA.oy+RA.h);
+    wallL=px(RA.ox);wallR=px(RA.ox+RA.w);wallT=px(RA.oy);wallB=px(RA.oy+RA.h);
   } else {
-    const cutX=px(RB.ox+RB.fw-RB.cutW), cutY=px(RB.oy+RB.fh-RB.cutH);
-    wallL=px(RB.ox); wallT=px(RB.oy);
-    wallR=icy>cutY ? cutX : px(RB.ox+RB.fw);
-    wallB=icx>cutX ? cutY : px(RB.oy+RB.fh);
+    const cutX=px(RB.ox+RB.fw-RB.cutW),cutY=px(RB.oy+RB.fh-RB.cutH);
+    wallL=px(RB.ox);wallT=px(RB.oy);
+    wallR=icy>cutY?cutX:px(RB.ox+RB.fw);
+    wallB=icx>cutX?cutY:px(RB.oy+RB.fh);
   }
   const dims=[
     {from:[aabb.left,icy],to:[wallL,icy],horiz:true},
@@ -118,15 +158,15 @@ function drawDistances(it){
     const meters=dist/S;
     const negative=(d.horiz?d.to[0]<d.from[0]:d.to[1]<d.from[1]);
     const color=negative?'#e24b4a':'#1a6abf';
-    ctx.strokeStyle=color; ctx.lineWidth=1; ctx.setLineDash([4,3]);
-    ctx.beginPath(); ctx.moveTo(d.from[0],d.from[1]); ctx.lineTo(d.to[0],d.to[1]); ctx.stroke();
+    ctx.strokeStyle=color;ctx.lineWidth=1;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(d.from[0],d.from[1]);ctx.lineTo(d.to[0],d.to[1]);ctx.stroke();
     ctx.setLineDash([]);
-    const tick=5, perp=d.horiz?Math.PI/2:0;
+    const tick=5,perp=d.horiz?Math.PI/2:0;
     [[d.from[0],d.from[1]],[d.to[0],d.to[1]]].forEach(([x,y])=>{
-      ctx.beginPath(); ctx.moveTo(x+Math.cos(perp)*tick,y+Math.sin(perp)*tick); ctx.lineTo(x-Math.cos(perp)*tick,y-Math.sin(perp)*tick); ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x+Math.cos(perp)*tick,y+Math.sin(perp)*tick);ctx.lineTo(x-Math.cos(perp)*tick,y-Math.sin(perp)*tick);ctx.stroke();
     });
-    const mx=(d.from[0]+d.to[0])/2, my=(d.from[1]+d.to[1])/2;
-    dimLabel(d.horiz?mx:mx+14, d.horiz?my-8:my, (Math.round(meters*100)/100).toFixed(2)+'м', color);
+    const mx=(d.from[0]+d.to[0])/2,my=(d.from[1]+d.to[1])/2;
+    dimLabel(d.horiz?mx:mx+14,d.horiz?my-8:my,(Math.round(meters*100)/100).toFixed(2)+'м',color);
   });
   drawObjDistances(it,aabb);
 }
@@ -138,7 +178,7 @@ function drawObjDistances(it,aabb){
     const overH=aabb.left<ob.right&&aabb.right>ob.left;
     const overV=aabb.top<ob.bottom&&aabb.bottom>ob.top;
     const color='#8855cc';
-    ctx.strokeStyle=color; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.strokeStyle=color;ctx.lineWidth=1;ctx.setLineDash([3,3]);
     if(overV){
       const my=(Math.max(aabb.top,ob.top)+Math.min(aabb.bottom,ob.bottom))/2;
       if(ob.left>aabb.right){ctx.beginPath();ctx.moveTo(aabb.right,my);ctx.lineTo(ob.left,my);ctx.stroke();dimLabel((aabb.right+ob.left)/2,my-8,((ob.left-aabb.right)/S).toFixed(2)+'м',color);}
@@ -154,38 +194,39 @@ function drawObjDistances(it,aabb){
 }
 
 function dimLabel(x,y,text,color){
-  ctx.font='bold 10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
   const tw=ctx.measureText(text).width+8;
-  ctx.fillStyle='rgba(255,255,255,0.88)'; ctx.fillRect(x-tw/2,y-8,tw,16);
-  ctx.fillStyle=color; ctx.fillText(text,x,y);
+  ctx.fillStyle='rgba(255,255,255,0.88)';ctx.fillRect(x-tw/2,y-8,tw,16);
+  ctx.fillStyle=color;ctx.fillText(text,x,y);
 }
 
 function ms(p){return (p/S).toFixed(2).replace(/\.?0+$/,'')+'м';}
 
 function draw(){
   ctx.clearRect(0,0,CW,CH);
-  ctx.fillStyle='#b8c8d4'; ctx.fillRect(0,0,CW,CH);
-  ctx.fillStyle=RA.color; ctx.fillRect(px(RA.ox),px(RA.oy),RA.w*S,RA.h*S);
-  ctx.strokeStyle=RA.wall; ctx.lineWidth=W;
+  ctx.fillStyle='#b8c8d4';ctx.fillRect(0,0,CW,CH);
+
+  ctx.fillStyle=RA.color;ctx.fillRect(px(RA.ox),px(RA.oy),RA.w*S,RA.h*S);
+  ctx.strokeStyle=RA.wall;ctx.lineWidth=W;
   ctx.strokeRect(px(RA.ox)+W/2,px(RA.oy)+W/2,RA.w*S-W,RA.h*S-W);
-  roomLabel(px(RA.ox)+RA.w*S/2,px(RA.oy)+16,RA.label,RA.w+'×'+RA.h+' м',RA.wall);
+  roomLabel(px(RA.ox)+RA.w*S/2,px(RA.oy)+18,RA.label,RA.w+'×'+RA.h+' м',RA.wall);
 
   const bpts=[[px(RB.ox),px(RB.oy)],[px(RB.ox+RB.fw),px(RB.oy)],[px(RB.ox+RB.fw),px(RB.oy+RB.fh-RB.cutH)],[px(RB.ox+RB.fw-RB.cutW),px(RB.oy+RB.fh-RB.cutH)],[px(RB.ox+RB.fw-RB.cutW),px(RB.oy+RB.fh)],[px(RB.ox),px(RB.oy+RB.fh)]];
-  const bp=new Path2D(); bp.moveTo(...bpts[0]); bpts.slice(1).forEach(p=>bp.lineTo(...p)); bp.closePath();
-  ctx.fillStyle=RB.color; ctx.fill(bp);
-  ctx.save(); ctx.clip(bp); ctx.strokeStyle=RB.wall; ctx.lineWidth=W; ctx.stroke(bp); ctx.restore();
+  const bp=new Path2D();bp.moveTo(...bpts[0]);bpts.slice(1).forEach(p=>bp.lineTo(...p));bp.closePath();
+  ctx.fillStyle=RB.color;ctx.fill(bp);
+  ctx.save();ctx.clip(bp);ctx.strokeStyle=RB.wall;ctx.lineWidth=W;ctx.stroke(bp);ctx.restore();
 
-  const cx=px(RB.ox+RB.fw-RB.cutW),cy=px(RB.oy+RB.fh-RB.cutH);
-  ctx.fillStyle='#b0bcc4'; ctx.fillRect(cx,cy,RB.cutW*S,RB.cutH*S);
-  ctx.strokeStyle='#8899aa'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
-  ctx.strokeRect(cx+.5,cy+.5,RB.cutW*S-1,RB.cutH*S-1); ctx.setLineDash([]);
-  ctx.fillStyle='#7a8a96'; ctx.font='9px sans-serif'; ctx.textAlign='center';
-  ctx.fillText('санузел',cx+RB.cutW*S/2,cy+RB.cutH*S/2-4);
-  ctx.fillText(RB.cutW+'×'+RB.cutH+'м',cx+RB.cutW*S/2,cy+RB.cutH*S/2+7);
+  const cx2=px(RB.ox+RB.fw-RB.cutW),cy2=px(RB.oy+RB.fh-RB.cutH);
+  ctx.fillStyle='#b0bcc4';ctx.fillRect(cx2,cy2,RB.cutW*S,RB.cutH*S);
+  ctx.strokeStyle='#8899aa';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+  ctx.strokeRect(cx2+.5,cy2+.5,RB.cutW*S-1,RB.cutH*S-1);ctx.setLineDash([]);
+  ctx.fillStyle='#7a8a96';ctx.font='10px sans-serif';ctx.textAlign='center';
+  ctx.fillText('санузел',cx2+RB.cutW*S/2,cy2+RB.cutH*S/2-5);
+  ctx.fillText(RB.cutW+'×'+RB.cutH+'м',cx2+RB.cutW*S/2,cy2+RB.cutH*S/2+7);
 
-  ctx.strokeStyle='#7a9ab8'; ctx.lineWidth=W;
-  ctx.beginPath(); ctx.moveTo(px(RA.w),px(0)); ctx.lineTo(px(RA.w),px(totalH)); ctx.stroke();
-  roomLabel(px(RB.ox)+(RB.fw-RB.cutW/2)*S/2+RB.cutW*S/8,px(RB.oy)+16,RB.label,RB.fw+'×'+RB.fh+' м',RB.wall);
+  ctx.strokeStyle='#7a9ab8';ctx.lineWidth=W;
+  ctx.beginPath();ctx.moveTo(px(RA.w),px(0));ctx.lineTo(px(RA.w),px(totalH));ctx.stroke();
+  roomLabel(px(RB.ox)+(RB.fw-RB.cutW/2)*S/2+RB.cutW*S/8,px(RB.oy)+18,RB.label,RB.fw+'×'+RB.fh+' м',RB.wall);
 
   const sel=items.find(i=>i.id===selectedId);
   if(sel)drawDistances(sel);
@@ -193,23 +234,23 @@ function draw(){
 }
 
 function roomLabel(x,y,label,dims,color){
-  ctx.fillStyle=color; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
-  ctx.fillText(label,x,y); ctx.font='9px sans-serif'; ctx.fillStyle=color+'cc';
-  ctx.fillText(dims,x,y+11);
+  ctx.fillStyle=color;ctx.font='bold 12px sans-serif';ctx.textAlign='center';
+  ctx.fillText(label,x,y);ctx.font='10px sans-serif';ctx.fillStyle=color+'cc';
+  ctx.fillText(dims,x,y+13);
 }
 
 function drawItem(it){
   ctx.save();
   const cx=it.px+it.pw/2,cy=it.py+it.ph/2;
-  ctx.translate(cx,cy); ctx.rotate(it.rot);
+  ctx.translate(cx,cy);ctx.rotate(it.rot);
   const hw=it.pw/2,hh=it.ph/2;
-  ctx.fillStyle=it.color; ctx.beginPath(); ctx.roundRect(-hw,-hh,it.pw,it.ph,4); ctx.fill();
+  ctx.fillStyle=it.color;ctx.beginPath();ctx.roundRect(-hw,-hh,it.pw,it.ph,4);ctx.fill();
   if(it.id===selectedId){ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();ctx.strokeStyle='#e24b4a';ctx.lineWidth=1.5;ctx.stroke();}
-  ctx.fillStyle=it.textColor; ctx.font='bold 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle=it.textColor;ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText(it.icon,0,it.ph>40?-6:0);
   if(it.pw>45&&it.ph>38){
-    ctx.font='9px sans-serif'; const n=it.name.length>13?it.name.slice(0,13)+'…':it.name; ctx.fillText(n,0,9);
-    ctx.fillStyle=it.textColor+'bb'; ctx.font='8px sans-serif'; ctx.fillText(ms(it.pw)+'×'+ms(it.ph),0,19);
+    ctx.font='9px sans-serif';const n=it.name.length>13?it.name.slice(0,13)+'…':it.name;ctx.fillText(n,0,9);
+    ctx.fillStyle=it.textColor+'bb';ctx.font='8px sans-serif';ctx.fillText(ms(it.pw)+'×'+ms(it.ph),0,19);
   }
   ctx.restore();
 }
@@ -227,17 +268,35 @@ const FDEFS=[
 ];
 
 const fb=document.getElementById('fbtns');
-FDEFS.forEach(f=>{const b=document.createElement('button');b.className='fbtn';b.innerHTML=`<span class="swatch" style="background:${f.color}"></span>${f.name}`;b.onclick=()=>addF(f);fb.appendChild(b);});
+FDEFS.forEach(f=>{
+  const b=document.createElement('button');b.className='fbtn';
+  b.innerHTML=`<span class="swatch" style="background:${f.color}"></span>${f.name}`;
+  b.onclick=()=>addF(f);fb.appendChild(b);
+});
 
-function addF(f){items.push({id:++idc,name:f.name,icon:f.icon,color:f.color,textColor:f.textColor,pw:Math.round(f.w*S),ph:Math.round(f.h*S),px:PAD+20,py:PAD+20,rot:0});selectItem(idc);}
+function addF(f){
+  const it={id:++idc,name:f.name,icon:f.icon,color:f.color,textColor:f.textColor,pw:Math.round(f.w*S),ph:Math.round(f.h*S),px:PAD+20,py:PAD+20,rot:0};
+  items.push(it);selectItem(idc);
+}
 function clearAll(){items=[];selectItem(null);}
 function selectItem(id){
-  selectedId=id; const it=items.find(i=>i.id===id);
-  if(it){panel.classList.remove('hidden');document.getElementById('ptitle').textContent=it.icon+' '+it.name;document.getElementById('sl-w').value=it.pw;document.getElementById('sl-h').value=it.ph;const deg=((Math.round(it.rot*180/Math.PI)%360)+360)%360;document.getElementById('sl-r').value=deg;updL(it);}
-  else panel.classList.add('hidden');
+  selectedId=id;const it=items.find(i=>i.id===id);
+  if(it){
+    panel.classList.remove('hidden');
+    document.getElementById('ptitle').textContent=it.icon+' '+it.name;
+    document.getElementById('sl-w').value=it.pw;
+    document.getElementById('sl-h').value=it.ph;
+    const deg=((Math.round(it.rot*180/Math.PI)%360)+360)%360;
+    document.getElementById('sl-r').value=deg;updL(it);
+  } else panel.classList.add('hidden');
   draw();
 }
-function updL(it){document.getElementById('out-w').textContent=(it.pw/S).toFixed(2)+'м';document.getElementById('out-h').textContent=(it.ph/S).toFixed(2)+'м';const deg=((Math.round(it.rot*180/Math.PI)%360)+360)%360;document.getElementById('out-r').textContent=deg+'°';}
+function updL(it){
+  document.getElementById('out-w').textContent=(it.pw/S).toFixed(2)+'м';
+  document.getElementById('out-h').textContent=(it.ph/S).toFixed(2)+'м';
+  const deg=((Math.round(it.rot*180/Math.PI)%360)+360)%360;
+  document.getElementById('out-r').textContent=deg+'°';
+}
 function getSel(){return items.find(i=>i.id===selectedId);}
 function resizeW(v){const it=getSel();if(!it)return;it.pw=+v;updL(it);draw();}
 function resizeH(v){const it=getSel();if(!it)return;it.ph=+v;updL(it);draw();}
@@ -245,22 +304,61 @@ function rotateDeg(v){const it=getSel();if(!it)return;it.rot=+v*Math.PI/180;updL
 function rotateSnap(deg){const it=getSel();if(!it)return;it.rot=deg*Math.PI/180;document.getElementById('sl-r').value=deg;updL(it);draw();}
 function deleteSelected(){items=items.filter(i=>i.id!==selectedId);selectItem(null);}
 
-function ptIn(it,mx,my){const cx=it.px+it.pw/2,cy=it.py+it.ph/2,dx=mx-cx,dy=my-cy,rx=dx*Math.cos(-it.rot)-dy*Math.sin(-it.rot),ry=dx*Math.sin(-it.rot)+dy*Math.cos(-it.rot);return Math.abs(rx)<it.pw/2&&Math.abs(ry)<it.ph/2;}
+function ptIn(it,mx,my){
+  const cx=it.px+it.pw/2,cy=it.py+it.ph/2,dx=mx-cx,dy=my-cy;
+  const rx=dx*Math.cos(-it.rot)-dy*Math.sin(-it.rot),ry=dx*Math.sin(-it.rot)+dy*Math.cos(-it.rot);
+  return Math.abs(rx)<it.pw/2&&Math.abs(ry)<it.ph/2;
+}
 function evP(e){const r=canvas.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};}
 
 canvas.addEventListener('mousedown',startD);
 canvas.addEventListener('touchstart',e=>{e.preventDefault();startD(e);},{passive:false});
-function startD(e){const{x,y}=evP(e);for(let i=items.length-1;i>=0;i--){if(ptIn(items[i],x,y)){selectItem(items[i].id);drag={item:items[i],ox:x-items[i].px,oy:y-items[i].py};items.push(items.splice(i,1)[0]);draw();return;}}selectItem(null);}
-canvas.addEventListener('dblclick',e=>{const{x,y}=evP(e);for(let i=items.length-1;i>=0;i--){if(ptIn(items[i],x,y)){items.splice(i,1);selectItem(null);return;}}});
+function startD(e){
+  const{x,y}=evP(e);
+  for(let i=items.length-1;i>=0;i--){
+    if(ptIn(items[i],x,y)){selectItem(items[i].id);drag={item:items[i],ox:x-items[i].px,oy:y-items[i].py};items.push(items.splice(i,1)[0]);draw();return;}
+  }
+  selectItem(null);
+}
+canvas.addEventListener('dblclick',e=>{
+  const{x,y}=evP(e);
+  for(let i=items.length-1;i>=0;i--){if(ptIn(items[i],x,y)){items.splice(i,1);selectItem(null);return;}}
+});
 window.addEventListener('mousemove',moveD);
 window.addEventListener('touchmove',e=>{e.preventDefault();moveD(e);},{passive:false});
-function moveD(e){if(!drag)return;const{x,y}=evP(e);drag.item.px=x-drag.ox;drag.item.py=y-drag.oy;const tr=trash.getBoundingClientRect(),wr=wrap.getBoundingClientRect(),ax=drag.item.px+drag.item.pw/2+wr.left,ay=drag.item.py+drag.item.ph/2+wr.top;trash.classList.toggle('active',ax>tr.left&&ax<tr.right&&ay>tr.top&&ay<tr.bottom);draw();}
+function moveD(e){
+  if(!drag)return;
+  const{x,y}=evP(e);drag.item.px=x-drag.ox;drag.item.py=y-drag.oy;
+  const tr=trash.getBoundingClientRect(),wr=wrap.getBoundingClientRect();
+  const ax=drag.item.px+drag.item.pw/2+wr.left,ay=drag.item.py+drag.item.ph/2+wr.top;
+  trash.classList.toggle('active',ax>tr.left&&ax<tr.right&&ay>tr.top&&ay<tr.bottom);
+  draw();
+}
 window.addEventListener('mouseup',endD);
 window.addEventListener('touchend',endD);
-function endD(){if(!drag)return;const it=drag.item,tr=trash.getBoundingClientRect(),wr=wrap.getBoundingClientRect(),cx=it.px+it.pw/2+wr.left,cy=it.py+it.ph/2+wr.top;if(cx>tr.left&&cx<tr.right&&cy>tr.top&&cy<tr.bottom){items=items.filter(i=>i.id!==it.id);selectItem(null);}trash.classList.remove('active');drag=null;draw();}
-window.addEventListener('keydown',e=>{if(['r','R','к','К'].includes(e.key)){const it=getSel();if(!it)return;it.rot=(it.rot+Math.PI/2)%(Math.PI*2);const deg=((Math.round(it.rot*180/Math.PI)%360)+360)%360;document.getElementById('sl-r').value=deg;updL(it);draw();}if(e.key==='Delete'||e.key==='Backspace')deleteSelected();});
+function endD(){
+  if(!drag)return;
+  const it=drag.item,tr=trash.getBoundingClientRect(),wr=wrap.getBoundingClientRect();
+  const cx=it.px+it.pw/2+wr.left,cy=it.py+it.ph/2+wr.top;
+  if(cx>tr.left&&cx<tr.right&&cy>tr.top&&cy<tr.bottom){items=items.filter(i=>i.id!==it.id);selectItem(null);}
+  trash.classList.remove('active');drag=null;draw();
+}
+window.addEventListener('keydown',e=>{
+  if(['r','R','к','К'].includes(e.key)){const it=getSel();if(!it)return;it.rot=(it.rot+Math.PI/2)%(Math.PI*2);const deg=((Math.round(it.rot*180/Math.PI)%360)+360)%360;document.getElementById('sl-r').value=deg;updL(it);draw();}
+  if(e.key==='Delete'||e.key==='Backspace')deleteSelected();
+});
 
-draw();
+function init(){
+  computeScale();
+  draw();
+}
+
+window.addEventListener('resize',()=>{
+  computeScale();
+  draw();
+});
+
+init();
 </script>
 </body>
 </html>
